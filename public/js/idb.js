@@ -1,71 +1,99 @@
+// create variable to hold db connection
 let db;
-const request = indexedDB.open("budget", 1);
+// establish a connection to IndexedDB database called 'pizza_hunt' and set it to version 1
+const request = indexedDB.open("budget_tracker", 1);
 
+// this event will emit if the database version changes (nonexistant to version 1, v1 to v2, etc.)
 request.onupgradeneeded = function (event)
 {
+    // save a reference to the database
     const db = event.target.result;
-    db.createObjectStore("pending", { autoIncrement: true });
+    // create an object store (table) called `new_pizza`, set it to have an auto incrementing primary key of sorts
+    db.createObjectStore("budget_tracker", { autoIncrement: true });
 };
 
+// upon a successful
 request.onsuccess = function (event)
 {
+    // when db is successfully created with its object store (from onupgradedneeded event above) or simply established a connection, save reference to db in global variable
     db = event.target.result;
 
-    // check if app is online before reading from db
+    // check if app is online, if yes run uploadExpenses() function to send all local db data to api
     if (navigator.onLine)
     {
-        checkDatabase();
+        // we haven't created this yet, but we will soon, so let's comment it out for now
+        uploadExpenses();
     }
 };
 
 request.onerror = function (event)
 {
-    console.log("Woops! " + event.target.errorCode);
+    // log error here
+    console.log(event.target.errorCode);
 };
 
+// This function will be executed if we attempt to submit a new expense and there's no internet connection
 function saveRecord(record)
 {
-    const transaction = db.transaction(["pending"], "readwrite");
-    const store = transaction.objectStore("pending");
+    // open a new transaction with the database with read and write permissions
+    const transaction = db.transaction(["budget_tracker"], "readwrite");
 
-    store.add(record);
+    // access the object store for `budget_tracker`
+    const budgetObjectStore = transaction.objectStore("budget_tracker");
+
+    // add record to your store with add method
+    budgetObjectStore.add(record);
 }
 
-function checkDatabase()
+function uploadExpenses()
 {
-    const transaction = db.transaction(["pending"], "readwrite");
-    const store = transaction.objectStore("pending");
-    const getAll = store.getAll();
+    // open a transaction on your db
+    const transaction = db.transaction(["budget_tracker"], "readwrite");
 
+    // access your object store
+    const budgetObjectStore = transaction.objectStore("budget_tracker");
+
+    // get all records from store and set to a variable
+    const getAll = budgetObjectStore.getAll();
+
+    // more to come...
+    // upon a successful .getAll() execution, run this function
     getAll.onsuccess = function ()
     {
+        // if there was data in indexedDb's store, let's send it to the api server
         if (getAll.result.length > 0)
         {
-            fetch("/api/transaction/bulk", {
+            fetch("/api/transaction", {
                 method: "POST",
                 body: JSON.stringify(getAll.result),
                 headers: {
                     Accept: "application/json, text/plain, */*",
-                    "Content-Type": "application/json"
-                }
+                    "Content-Type": "application/json",
+                },
             })
-                .then(response => response.json())
-                .then(() =>
+                .then((response) => response.json())
+                .then((serverResponse) =>
                 {
-                    // delete records if successful
-                    const transaction = db.transaction(["pending"], "readwrite");
-                    const store = transaction.objectStore("pending");
-                    store.clear();
+                    if (serverResponse.message)
+                    {
+                        throw new Error(serverResponse);
+                    }
+                    // open one more transaction
+                    const transaction = db.transaction(["budget_tracker"], "readwrite");
+                    // access the budget_tracker object store
+                    const budgetObjectStore = transaction.objectStore("budget_tracker");
+                    // clear all items in your store
+                    budgetObjectStore.clear();
+
+                    alert("All saved expenses have been submitted!");
+                })
+                .catch((err) =>
+                {
+                    console.log(err);
                 });
         }
     };
 }
-function deletePending()
-{
-    const transaction = db.transaction(["pending"], "readwrite");
-    const store = transaction.objectStore("pending");
-    store.clear();
-}
 
 // listen for app coming back online
-window.addEventListener("online", checkDatabase);
+window.addEventListener("online", uploadExpenses);
