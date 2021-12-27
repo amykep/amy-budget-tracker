@@ -16,22 +16,19 @@ WHEN the user reestablishes an internet connection</br>
 THEN the deposits or expenses added while they were offline are added to their transaction history and their totals are updated</br>
 
 ## Installation
-The application require the use of Node.js, Compression, Express.js, MongoDB, Mongoose, Morgan, for running it.
+The application require the use of InedexDB, MongoDB Atlas, Manifest.json and Service worker for running it.
+
+InedexDB to keep track of database while offline
+MongoDB Atlas to allow for deployment to Heroku and connection to database from the cloud
+Manifest.json to make a Progressive Web Application
+Service worker to keep track of cache files while offline
 
 ## Screenshots
-HomePage
-![Screenshot of note adding](./public/images/home.png)</br>
-Login and Signup page
-![Screenshot of note viewing](./public/images/login-signup.png)</br>
-Create Post
-![Screenshot of note deleting](./public/images/create-post.png)</br>
-Edit / Delete Post
-![Screenshot of note deleting](./public/images/edit-delete-post.png)</br>
-Add Comment / Upvote a Post
-![Screenshot of note deleting](./public/images/addComment-upvote.png)</br>
+Budget Tracker
+![Screenshot of note adding](./public/budget-tracker.png)</br>
 
 ## Github Page: 
 https://github.com/amykep/amy-budget-tracker
 
 ## Deployed on Heroku at:
- https://salty-castle-67103.herokuapp.com
+ https://vast-everglades-41705.herokuapp.com/
