@@ -18,10 +18,10 @@ THEN the deposits or expenses added while they were offline are added to their t
 ## Installation
 The application require the use of InedexDB, MongoDB Atlas, Manifest.json and Service worker for running it.
 
-InedexDB to keep track of database while offline
-MongoDB Atlas to allow for deployment to Heroku and connection to database from the cloud
-Manifest.json to make a Progressive Web Application
-Service worker to keep track of cache files while offline
+InedexDB to keep track of database while offline</br>
+MongoDB Atlas to allow for deployment to Heroku and connection to database from the cloud</br>
+Manifest.json to make a Progressive Web Application</br>
+Service worker to keep track of cache files while offline</br>
 
 ## Screenshots
 Budget Tracker
